@@ -1,33 +1,30 @@
-﻿public interface IMessageService {
-    void Send ( string message );
-}
-
-public class EmailService : IMessageService {
-    public void Send ( string message ) {
-        Console.WriteLine( $"Email sent: {message}" );
-    }
-}
-
-public class NotificationManager {
-    private readonly IMessageService _messageService;
-
-    public NotificationManager ( IMessageService messageService ) {
-        _messageService = messageService;
-    }
-
-    public void Notify ( string message ) {
-        _messageService.Send( message );
-    }
-}
+﻿using ConsoleApp2;
 
 class Program {
     static void Main () {
-        var container = new SimpleContainer();
 
-        container.Register<IMessageService, EmailService>();
-        container.Register<NotificationManager, NotificationManager>();
+        User user = new User();
+        user.name = "John";
+        user.age = 25;
+        user.course = "C# Programming";
 
-        var manager = container.Resolve<NotificationManager>();
-        manager.Notify( "Hello from DI container!" );
+        Student student = new Student();
+        // mapping using the Mapper class
+        //student = Mapper.MapToStudent( user );
+
+        // mapping using the extension method
+        student = user.ExtensionMapToStudent();
+
+
+
+        Console.WriteLine( $"Name: {student.name}, Course: {student.course}" );
+
+
     }
+
 }
+
+
+
+
+
