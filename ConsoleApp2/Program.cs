@@ -1,33 +1,54 @@
-﻿public interface IMessageService {
-    void Send ( string message );
-}
-
-public class EmailService : IMessageService {
-    public void Send ( string message ) {
-        Console.WriteLine( $"Email sent: {message}" );
-    }
-}
-
-public class NotificationManager {
-    private readonly IMessageService _messageService;
-
-    public NotificationManager ( IMessageService messageService ) {
-        _messageService = messageService;
-    }
-
-    public void Notify ( string message ) {
-        _messageService.Send( message );
-    }
-}
+﻿using ConsoleApp2;
+using System.Reflection;
 
 class Program {
     static void Main () {
-        var container = new SimpleContainer();
+        string role = "Admin";
 
-        container.Register<IMessageService, EmailService>();
-        container.Register<NotificationManager, NotificationManager>();
+        string requestPath = "/home";
+        var controller = new HomeController();
+        var methods = typeof( HomeController ).GetMethods();
 
-        var manager = container.Resolve<NotificationManager>();
-        manager.Notify( "Hello from DI container!" );
+        foreach (var method in methods) {
+            var attr = method.GetCustomAttribute<MyGetAttribute>();
+            if (attr != null && attr.route == requestPath) {
+                method.Invoke( controller, null );
+                break;
+            }
+        }
+
+    }
+}
+
+[AttributeUsage( AttributeTargets.Method )]
+public class MyGetAttribute : Attribute {
+    public readonly string route;
+
+    public MyGetAttribute ( string route ) {
+        this.route = route;
+    }
+
+
+}
+
+
+
+class HomeController {
+    [MyGet( "/home" )]
+    [MyCustomAuthorize( "Admin" )]
+    public void Index () {
+        MyAuthorizationUsingReflection auth = new MyAuthorizationUsingReflection();
+        var controllerName = typeof( HomeController );
+        if (auth.IsAuthorized( "Index", controllerName ) == true) {
+            Console.WriteLine( "Index" );
+        }
+        else {
+            Console.WriteLine( "Unauthorized" );
+        }
+    }
+
+    [MyGet( "/privacy" )]
+    public void Privacy () {
+        Console.WriteLine( "Privacy page" );
     }
 }
