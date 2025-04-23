@@ -1,54 +1,38 @@
-﻿using ConsoleApp2;
-using System.Reflection;
+﻿
+// Interfaces in C# can have -->
+// default methods, which are methods with a body.(Mixins)
+// static methods, which are methods that belong to the interface itself.
+// abstract methods, which are methods without a body.
 
-class Program {
+class Program : IMixin {
     static void Main () {
-        string role = "Admin";
 
-        string requestPath = "/home";
-        var controller = new HomeController();
-        var methods = typeof( HomeController ).GetMethods();
+        // create an instance of the class
+        Program p = new Program();
+        // call the method from the class
+        p.run();
+        // call the method from the interface
+        // since i am not using the run in the program class hence i will have to use the interface reference 
+        IMixin i = new Program();
+        i.run2();
 
-        foreach (var method in methods) {
-            var attr = method.GetCustomAttribute<MyGetAttribute>();
-            if (attr != null && attr.route == requestPath) {
-                method.Invoke( controller, null );
-                break;
-            }
-        }
+    }
 
+    public void run () {
+        Console.WriteLine( "Run one" );
     }
 }
 
-[AttributeUsage( AttributeTargets.Method )]
-public class MyGetAttribute : Attribute {
-    public readonly string route;
 
-    public MyGetAttribute ( string route ) {
-        this.route = route;
-    }
+interface IMixin {
+    // since this method is not implemented in the interface, it is not a default method
+    void run ();
 
-
-}
-
-
-
-class HomeController {
-    [MyGet( "/home" )]
-    [MyCustomAuthorize( "Admin" )]
-    public void Index () {
-        MyAuthorizationUsingReflection auth = new MyAuthorizationUsingReflection();
-        var controllerName = typeof( HomeController );
-        if (auth.IsAuthorized( "Index", controllerName ) == true) {
-            Console.WriteLine( "Index" );
-        }
-        else {
-            Console.WriteLine( "Unauthorized" );
-        }
-    }
-
-    [MyGet( "/privacy" )]
-    public void Privacy () {
-        Console.WriteLine( "Privacy page" );
+    // this method is implemented in the interface, it is a default method
+    // it is not abstract
+    // the child does not need to implement it if it does not want to
+    void run2 () {
+        Console.WriteLine( "run2" );
     }
 }
+
