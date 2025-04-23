@@ -1,39 +1,67 @@
+﻿using Microsoft.Extensions.FileProviders;
+using Microsoft.Extensions.Primitives;
 
-// Interfaces in C# can have -->
-// default methods, which are methods with a body.(Mixins)
-// static methods, which are methods that belong to the interface itself.
-// abstract methods, which are methods without a body.
-
-class Program : IMixin {
+class Program {
     static void Main () {
+        var path = Path.GetFullPath( Path.Combine( AppContext.BaseDirectory, @"..\..\.." ) );
+        Console.WriteLine( "Watching path: " + path );
 
-        // create an instance of the class
-        Program p = new Program();
-        // call the method from the class
-        p.run();
-        // call the method from the interface
-        // since i am not using the run in the program class hence i will have to use the interface reference 
-        IMixin i = new Program();
-        i.run2();
+        IFileProvider provider = new PhysicalFileProvider( path );
+        var fileInfo = provider.GetFileInfo( "index.txt" );
 
-    }
+        if (fileInfo.Exists) {
+            // Start watching the file for changes
+            ChangeToken.OnChange(
+                () => provider.Watch( "index.txt" ),
+                () => Console.WriteLine( "File changed..." )
+            );
+        }
+        else {
+            Console.WriteLine( "File not found." );
+        }
 
-    public void run () {
-        Console.WriteLine( "Run one" );
-    }
-}
-
-
-interface IMixin {
-    // since this method is not implemented in the interface, it is not a default method
-    void run ();
-
-    // this method is implemented in the interface, it is a default method
-    // it is not abstract
-    // the child does not need to implement it if it does not want to
-    void run2 () {
-        Console.WriteLine( "run2" );
+        // to keep the watcher alive
+        Console.ReadKey();
     }
 }
 
+
+
+
+/*using Microsoft.Extensions.FileProviders;
+using Microsoft.Extensions.Primitives;
+
+class Program {
+    static void Main () {
+        // Resolve the absolute path of the project root directory (3 levels up from output bin folder)
+        var path = Path.GetFullPath( Path.Combine( AppContext.BaseDirectory, @"..\..\.." ) );
+        Console.WriteLine( "Watching path: " + path );
+
+        // PhysicalFileProvider is like an adapter for the file system.
+        // It allows access to physical files and directories and supports monitoring file changes.
+        // Unlike System.IO which only works with local files, IFileProvider can abstract different sources like embedded resources or cloud storage.
+        IFileProvider provider = new PhysicalFileProvider( path );
+
+        // Start watching a specific file (index.txt) in the provided directory for changes
+        WatchFile( provider, "index.txt" );
+
+        Console.WriteLine( "Press any key to exit..." );
+    }
+
+    static void WatchFile ( IFileProvider provider, string fileName ) {
+        // ChangeToken.OnChange registers a callback that is triggered when the file changes.
+        // The first lambda () => provider.Watch(fileName) returns an IChangeToken that tracks the file.
+        // The second lambda is the action to perform when the file changes.
+        // Under the hood, this uses FileSystemWatcher and re-subscribes after every change — so it keeps working without manual loops.
+        ChangeToken.OnChange(
+            // it watches the file for changes and triggers the os file system watcher hook
+            () => provider.Watch( fileName ), // Returns a token that monitors the file
+            () => {
+                Console.WriteLine( $"{fileName} has changed at {DateTime.Now}" ); // This runs whenever the file is changed
+                // Additional logic like re-reading the file or triggering business logic can be placed here
+            }
+        );
+    }
+}
+*/
 
