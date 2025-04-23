@@ -1,4 +1,4 @@
-﻿
+
 // Interfaces in C# can have -->
 // default methods, which are methods with a body.(Mixins)
 // static methods, which are methods that belong to the interface itself.
@@ -35,4 +35,5 @@ interface IMixin {
         Console.WriteLine( "run2" );
     }
 }
+
 
