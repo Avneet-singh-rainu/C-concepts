@@ -35,7 +35,6 @@ class Program {
 
 
 
-
     }
 }
 
@@ -60,19 +59,24 @@ public class MyModelDTO {
 
 
 public class MyAutoMapper {
-    public U ConvertTo<T, U> ( T Source, U Destination ) {
+    public U ConvertTo<T, U> ( T source, U destination ) {
+        var sourceProps = typeof( T ).GetProperties();
+        var destProps = typeof( U ).GetProperties()
+            .Where( p => p.CanWrite )
+            .ToDictionary( p => p.Name, p => p );
 
-        foreach (var prop in typeof( T ).GetProperties()) {
-            var destProp = typeof( U ).GetProperty( prop.Name );
-            if (destProp != null && destProp.CanWrite) {
-                destProp.SetValue( Destination, prop.GetValue( Source ) );
+        foreach (var prop in sourceProps) {
+            if (destProps.TryGetValue( prop.Name, out var destProp )) {
+                if (destProp.PropertyType.IsAssignableFrom( prop.PropertyType )) {
+                    destProp.SetValue( destination, prop.GetValue( source ) );
+                }
             }
         }
 
-        return Destination;
-
+        return destination;
     }
 }
+
 
 
 
