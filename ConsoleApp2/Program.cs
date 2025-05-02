@@ -18,7 +18,7 @@ class Program {
         student = user.ExtensionMapToStudent();
         //Console.WriteLine( $"Name: {student.name}, Course: {student.course}" );
 
-        ///======================== Method 2 using explicit and implicit operator =============================================
+        ///======================== Method 2 using explicit and implicit operator ===================================
         MyModel mm = new MyModel();
         mm.age = 62;
         mm.name = "ExplicitOperator Method";
@@ -27,7 +27,7 @@ class Program {
 
 
 
-        ///======================== Method 3 using my auto mapper of generic type =============================================
+        ///======================== Method 3 using my auto mapper of generic type ===================================
         MyAutoMapper mam = new();
 
         mam.ConvertTo( user, student );
@@ -73,6 +73,7 @@ public class MyAutoMapper {
 
     }
 }
+
 
 
 
