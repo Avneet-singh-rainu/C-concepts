@@ -40,8 +40,10 @@ class Program {
 
 
 
-// we can also utilize the implicit and explicit operators
-
+/// <summary>
+/// Method 2
+/// It uses explicit and implicit operator to convert the object of one type to another.
+/// </summary>
 public class MyModel {
     public int age;
     public string? name;
@@ -58,8 +60,16 @@ public class MyModelDTO {
 }
 
 
+/// <summary>
+/// Method 3 for automapping the properties of two different classes and returning the destination object.
+/// The properties with the same name and type will be mapped.
+/// Nested properties are not supported.
+/// </summary>
 public class MyAutoMapper {
-    public U ConvertTo<T, U> ( T source, U destination ) {
+    public U ConvertTo<T, U> ( T source, U destination )
+        where T : class
+        where U : class {
+
         var sourceProps = typeof( T ).GetProperties();
         var destProps = typeof( U ).GetProperties()
             .Where( p => p.CanWrite )
