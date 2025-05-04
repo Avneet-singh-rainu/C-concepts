@@ -12,41 +12,57 @@ class Program {
     /// can be sent to other systems (SQL) server to execute the code (LINQ).
     /// </summary>
     static void Main () {
-        /*
-         * Expression Trees allow the code itself to be represented as data.
-         * This is useful for building dynamic queries, runtime evaluation, or
-         * converting code to another form (e.g., SQL via Entity Framework).
-         */
+        // Demonstrating Method 1: Expression Tree using Lambda Syntax
+        Console.WriteLine( "Method 1: Expression Tree using Lambda Syntax" );
+        RunMethod1_LambdaSyntax();
 
-        // ----------------------------
-        // Method 1:
-        // Creating an expression tree using a lambda expression
-        // Expression<Func<int, int, int>> add = (a, b) => a + b;
-        // ----------------------------
+        // Demonstrating Method 2: Manually Building an Expression Tree
+        Console.WriteLine( "\nMethod 2: Manually Building an Expression Tree" );
+        RunMethod2_ManualExpression();
+    }
 
-        // ----------------------------
-        // Method 2: Manually building an Expression Tree
-        // Step-by-step creation of a lambda: (int a, int b) => a + b
-        // ----------------------------
+    /// <summary>
+    /// Method 1: Creates an expression tree using direct lambda syntax.
+    /// This is the most concise way and lets the compiler build the expression tree automatically.
+    /// The expression tree is compiled into a delegate and invoked to return a result.
+    /// </summary>
+    static void RunMethod1_LambdaSyntax () {
+        // Expression tree that represents: (a, b) => a + b
+        Expression<Func<int, int, int>> addExpression = ( a, b ) => a + b;
 
-        // 1. Create parameter expressions for the lambda parameters
-        ParameterExpression a = Expression.Parameter( typeof( int ), "a" ); // Represents variable 'a'
-        ParameterExpression b = Expression.Parameter( typeof( int ), "b" ); // Represents variable 'b'
+        // Compile the expression tree into a delegate (Func<int, int, int>)
+        Func<int, int, int> compiledAdd = addExpression.Compile();
 
-        // 2. Create the expression body: a + b
-        BinaryExpression body = Expression.Add( a, b ); // Represents the binary operation 'a + b'
+        // Invoke the compiled delegate (expression tree) with sample values (1, 1)
+        int result = compiledAdd( 1, 1 );
 
-        // 3. Combine parameters and body into a complete expression tree
-        // The resulting expression is equivalent to: (a, b) => a + b
-        Expression<Func<int, int, int>> add = Expression.Lambda<Func<int, int, int>>( body, a, b );
+        // Output the result of the expression tree execution
+        Console.WriteLine( $"(1 + 1) = {result}" );
+    }
 
-        // 4. Compile the expression tree into executable code (delegate)
-        Func<int, int, int> addFunction = add.Compile();
+    /// <summary>
+    /// Method 2: Manually constructs an expression tree step-by-step.
+    /// This approach provides more control over the expression tree and is useful for building dynamic queries at runtime.
+    /// In this example, we manually create parameters and the binary expression (a + b).
+    /// </summary>
+    static void RunMethod2_ManualExpression () {
+        // Step 1: Define parameters for the expression
+        ParameterExpression paramA = Expression.Parameter( typeof( int ), "a" ); // Represents the variable 'a'
+        ParameterExpression paramB = Expression.Parameter( typeof( int ), "b" ); // Represents the variable 'b'
 
-        // 5. Invoke the compiled function with sample values
-        int result = addFunction( 1, 1 ); // Expected output: 2
+        // Step 2: Define the expression body: a + b (binary addition expression)
+        BinaryExpression body = Expression.Add( paramA, paramB );
 
-        // 6. Output the result
-        Console.WriteLine( result ); // Output: 2
+        // Step 3: Combine the parameters and body into a complete expression tree: (a, b) => a + b
+        Expression<Func<int, int, int>> addExpression = Expression.Lambda<Func<int, int, int>>( body, paramA, paramB );
+
+        // Step 4: Compile the expression tree into executable code (delegate)
+        Func<int, int, int> compiledAdd = addExpression.Compile();
+
+        // Step 5: Invoke the compiled delegate (expression tree) with sample values (1, 1)
+        int result = compiledAdd( 1, 1 );
+
+        // Output the result of the expression tree execution
+        Console.WriteLine( $"(1 + 1) = {result}" );
     }
 }
