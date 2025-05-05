@@ -47,3 +47,23 @@ Checking the **availability of a username**. This is a set membership problem wh
 
   **Example:**  
   If we delete "geeks" by clearing bits at indices 1, 4, and 7, we may unintentionally delete "nerd" if both shared index 4. After clearing, the filter would wrongly report that "nerd" is not present.
+
+---
+
+## Working (Short Summary)
+
+1. **Initialization**:  
+   A bit array of size `m` is initialized to all `0`s.  
+   You also decide on `k` independent hash functions.
+
+2. **Adding an Element**:  
+   Each of the `k` hash functions is applied to the element, producing `k` indices.  
+   The corresponding bits in the bit array are set to `1`.
+
+3. **Checking Membership**:  
+   To check if an element exists, apply the same `k` hash functions.  
+   If **all** corresponding bits are `1`, the element **might** be in the set.  
+   If **any** bit is `0`, the element is **definitely not** in the set.
+
+4. **Limitation**:  
+   As more elements are added, more bits get set to `1`, increasing the chance of false positives.
