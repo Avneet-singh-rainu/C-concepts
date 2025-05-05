@@ -1,78 +1,92 @@
-﻿using System.Collections;
-
-// Main program to test the Bloom Filter
+﻿
 class Program {
     static void Main () {
-        // Create a BloomFilter for strings with size 1000 and using 4 hash functions
-        BloomFilter<string> filter = new BloomFilter<string>( 1000, 4 );
 
-        // Add elements to the Bloom Filter
-        filter.Add( "apple" );
-        filter.Add( "banana" );
+        SingleDispatch sd = new SingleDispatch();
+        sd.Limitation();
 
-        // Check for element presence
-        Console.WriteLine( filter.MightContain( "apple" ) );   // Expected: true
-        Console.WriteLine( filter.MightContain( "grapes" ) );  // Might be false (most likely)
     }
 }
 
-// Generic Bloom Filter class
-class BloomFilter<T> {
-    private BitArray bloomArray; // Bit array that stores the filter data
-    private int hashCount;       // Number of hash functions used
 
-    // Constructor: Initializes the Bloom Filter with given size and number of hash functions
-    public BloomFilter ( int bloomArraySize, int hashCount ) {
-        this.bloomArray = new BitArray( bloomArraySize ); // All bits initialized to false
-        this.hashCount = hashCount;
+
+
+class SingleDispatch {
+    public SingleDispatch () {
+        IAnimal a = new Dog();
+        a.sound();
+
+        // 'a' still has compile-time type IAnimal, but its runtime type is now Horse
+
+        a = new Horse();
+        a.sound();
+
+        //this method cant be called as it is not in the compile time type IAnimal
+        //a.methodNotInTheParent();
     }
 
-    // Adds an element to the Bloom Filter
-    public void Add ( T element ) {
-        // Get positions to set using the hash functions
-        int[] hash = GetHashes( element );
+    /// <summary>
+    /// AnimalType is accepting "Dog" object type
+    /// This wont work as compile time object is IAnimal and run time object is Dog so on compile time will throw error
+    /// 
+    /// ---------------------------------------------------------------------------------------------------------------
+    /// 
+    /// The main limitation is that 
+    /// horse.AnimalType(animal) calls the IAnimal version of AnimalType 
+    /// because the compile-time type of animal is IAnimal (even though it is a Dog at runtime).
+    ///This is the limitation of single dispatch where the method resolution doesn't take runtime types into account.
+    /// </summary>
+    public void Limitation () {
+        IAnimal animal = new Dog();
+        Dog dog = new Dog();
 
-        // Set each bit at the calculated positions to true
-        foreach (int position in hash) {
-            bloomArray[position] = true;
-        }
+
+        //>>>>>>>>>>>>>>>> Error Producing Code at Compile time <<<<<<<<<<<<<<<<<<
+        //dog.AnimalType( animal );
+
+        //single dispatch "doesn't work as expected" due to the method not considering argument runtime types, only their compile-time types
+        // Horse.AnimalType is method overloaded
+        // Here i am passing animal (compile time object type = IAnimal and run time object type is Dog
+        // But C# does not care about run time object type it will call the IAnimal expextion method 
+        Horse horse = new Horse();
+        horse.AnimalType( animal );
     }
 
-    // Checks if an element *might* be in the set
-    public bool MightContain ( T element ) {
-        // Get hash positions to check
-        int[] hash = GetHashes( element );
+}
 
-        // If any one of the positions is false, the element is definitely not present
-        foreach (int position in hash) {
-            if (!bloomArray[position])
-                return false; // Definitely not in the set
-        }
+interface IAnimal {
+    void sound ();
+}
 
-        // If all positions are true, it might be in the set
-        return true;
+class Dog : IAnimal {
+    public void sound () {
+        Console.WriteLine( "bhaw bhaw bhaw ..." );
     }
 
-    // Generates multiple hash values for the given element
-    private int[] GetHashes ( T element ) {
-        int[] result = new int[hashCount]; // Array to store hash positions
-
-        string baseString = element!.ToString()!; // Convert the element to a string
-
-        // Create multiple hash values using variations of the input
-        for (int i = 0; i < hashCount; i++) {
-            // Add a salt value `i` to make different variations
-            string combined = baseString + i;
-
-            // Use built-in GetHashCode to generate a hash, then take absolute value
-            int hash = Math.Abs( combined.GetHashCode() );
-
-            // Use modulo operation to map the hash to a valid bit array index
-            int index = hash % bloomArray.Length;
-
-            result[i] = index; // Store the index
-        }
-
-        return result; // Return all calculated positions
+    // limitation of single dispatch
+    public void AnimalType ( Dog a ) {
+        Console.WriteLine( a.GetType() );
     }
+
+
+}
+
+
+class Horse : IAnimal {
+    public void sound () {
+        Console.WriteLine( "neighghghghghg ...." );
+    }
+
+    public void methodNotInParent () {
+        Console.WriteLine( "Method that is not in the interface..." );
+    }
+
+    public void AnimalType ( IAnimal a ) {
+        Console.WriteLine( "Animal type..." );
+    }
+
+    public void AnimalType ( Dog a ) {
+        Console.WriteLine( "Dog type..." );
+    }
+
 }
