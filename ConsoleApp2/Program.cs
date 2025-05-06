@@ -1,3 +1,4 @@
+
 ﻿using System.Collections;
 
 // Main program to test the Bloom Filter
@@ -76,3 +77,4 @@ class BloomFilter<T> {
         return result; // Return all calculated positions
     }
 }
+
